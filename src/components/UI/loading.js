@@ -20,7 +20,7 @@ const LoadingContainer = styled.div`
     animation: ${rotate} 3s infinite;
 `
 
-function Loading(props) {
+function Loading() {
     return <LoadingContainer>
         <i class="fas fa-spinner"></i>
     </LoadingContainer>

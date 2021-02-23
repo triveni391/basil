@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ProductCard from "../components/productCard";
 import Header from "../components/home/header";
+import Loading from "../components/UI/loading";
 import { getRestuarants } from "../actions/restuarants";
 import { connect, useDispatch } from "react-redux";
 import { media } from "../constants/breakpoint";
@@ -32,15 +33,16 @@ const Home = (props) => {
 
     return <>
         <Header active={active} onClick={(index) => setActive(index)} />
-        <Container>
+        {props.loading ? <Loading /> : <Container>
             {(restuarants || []).map((restuarant, index) => <ProductCard {...restuarant} index={index} />)}
-        </Container>
+        </Container>}
     </>
 }
 
 function mapStateToProps(store) {
     return {
-        restuarants: store.restuarants.data
+        restuarants: store.restuarants.data,
+        loading: store.restuarants.getLoading
     }
 
 }
