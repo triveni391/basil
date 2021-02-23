@@ -52,7 +52,7 @@ export function getRestuarants() {
             const res = await axios.get('/restuarants');
             dispatch(getRestuarantsSuccess(res.data))
         } catch (ex) {
-            console.error('error in fetching restuarants');
+            console.error('error in fetching restuarants', ex);
             dispatch(getRestuarantsFailure(ex.message))
         }
     }
@@ -66,10 +66,10 @@ export function getRestuarant(index, restuarants) {
                 dispatch(getRestuarantSuccess({ ...restuarants[index] }));
                 return;
             }
-            const res = await axios.get(`/restuarant/${index}`);
+            const res = await axios.get(`/restuarant?id=${index}`);
             dispatch(getRestuarantSuccess(res.data))
         } catch (ex) {
-            console.error('error in fetching restuarants');
+            console.error('error in fetching restuarants', ex);
             dispatch(getRestuarantFailure(ex.message))
         }
     }

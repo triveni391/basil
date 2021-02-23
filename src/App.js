@@ -8,8 +8,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
-  BrowserRouter
 } from "react-router-dom";
 import Recepie from './pages/recepie';
 

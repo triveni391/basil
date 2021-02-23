@@ -13,7 +13,7 @@ const items = ["Top Rated", "Offers", "Near By"]
 const Header = ({ active, onClick }) => {
     return <Container>
         <Title size="6em" />
-        <NavBar active={active} items={items} onClick={(index) => onClick(index)} />
+        {/* <NavBar active={active} items={items} onClick={(index) => onClick(index)} /> */}
     </Container>
 }
 

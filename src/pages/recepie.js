@@ -6,6 +6,8 @@ import { connect } from "react-redux";
 import { useParams } from "react-router";
 import restuarant from "../reducers/restuarant";
 import { media } from "../constants/breakpoint";
+import { Link } from "react-router-dom";
+import Loading from "../components/UI/loading";
 
 const menuTitles = ["recommended", "starters", "main course", "combo", "desserts"];
 const dishes = {
@@ -130,38 +132,40 @@ const dishes = {
         isVeg: true
     }],
 }
-// const dishes = [{
-//     title
-// }];
-const ImageContainer = styled.img`
-    width: 100%;
-    height: 25rem;
-    padding-top: 1rem;
-`
-
 const ContentConatiner = styled.div`
-    padding: 1rem 4rem;
+    padding: 1rem 1rem;
     display: grid;
-    grid-template-columns: 20% 40% 40%;
+    grid-template-columns: 60% 30%;
     grid-auto-flow: column;
-    grid-gap: 5rem;
+    grid-gap: 4rem;
+    margin: 0rem;
+    ${media.mobileOnly} {
+        grid-template-columns: 100%;
+        grid-auto-flow: row;
+        padding: 0 1rem;
+        margin: 0;
+    }
 `;
 
 const MenuContainer = styled.ul`
     width: 100%;
     display: flex;
     margin: 2rem 0;
-    border-right: 2px solid #B9E4C9;
+    border-right: ${props => props.showBorder ? '2px solid #B9E4C9' : 'none'};
     list-style: none;
     flex-direction: column;
-    
+    ${media.mobileOnly} {
+        border: none;
+        padding-left: 0;
+        margin: auto;
+    }
 `
 
 const MenuItem = styled.li`
-    margin: 1rem 0;
+    margin-bottom: 1rem;
     cursor: pointer;
     &.active a{
-        border-bottom: 2px solid #356859;
+        color: #FD5523;
     }
 `
 
@@ -190,19 +194,21 @@ const DishTitle = styled.h3`
     color: #37966F;
     font-weight: 400;
     text-transform: uppercase;
-    ${media.mobileOnly} {
-
-    }
 `
 
 const CategoryTitle = styled(DishTitle)`
     font-weight: 700;
-
+    &.active {
+        color: #FD5523;
+    }
 `
 
 const DishContainer = styled.div`
     padding-bottom: 1rem;
     width: 80%;
+    ${media.mobileOnly} {
+        margin: auto;
+    }
 `;
 
 const DishItem = styled.div`
@@ -226,16 +232,6 @@ const DishPrice = styled.p`
     color: #37966F;
 `
 
-const Button = styled.button`
-    padding: 0.5rem;
-    width: 10%;
-    height: 2rem;
-    background: inherit;
-    align-self: center;
-    border: 2px solid #37966F;
-    color: #37966F;
-    cursor: pointer;
-`
 const DishType = styled.div`
     width: 1rem;
     height: 1rem;
@@ -248,11 +244,17 @@ const DishType = styled.div`
     color: ${props => props.color};
 `;
 
-const AddressContainer = styled.div`
+const AddressContainer = styled(MenuContainer)`
+    position: relative;
+    padding: 0;
+`
+const Address = styled.div`
     width: 20rem; 
     height: auto;
     box-shadow: rgb(28 28 28 / 12%) 0px 2px 8px;
     padding: 1rem;
+    position: relative;
+    right: 1rem;
 `
 
 const AddressHeader = styled.h5`
@@ -269,31 +271,114 @@ const AddressContent = styled.p`
 `
 
 const Container = styled.div`
-      overflow-y: hidden;
 `
+
+const FixedContainer = styled.div`
+        position: fixed;
+        bottom: 20px;
+        right 7rem;
+        width: 80px;
+        height: 80px;
+        color: #356589;
+        background: #B9E4C9;
+        text-align: center;
+        vertical-align: middle;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 80px;
+        cursor: pointer;
+        p {
+            padding-left: 0.5rem;
+            margin: 0;
+        }
+        ${media.mobileOnly} {
+            right: 1rem;
+        }
+`
+
+const CategoryContainer = styled.div`
+        position: fixed;
+        bottom: 7rem;
+        right: 3rem;
+        list-style: none;
+        display: flex;
+        background: #B9E4C9;
+        transition: 1s;
+        flex-direction: column;
+        overflow-y: auto;
+        box-shadow: rgb(28 28 28 / 12%) 0px 2px 8px;
+        padding: 1rem;
+        height: 20rem;
+        ${media.mobileOnly} {
+            height: 20rem;
+            width: 10rem;
+        }
+`;
+
+const DishList = styled.li`
+`
+
+const NextContainer = styled.div`
+    position: fixed;
+    top: 50%;
+    right: 2rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #B9E4C9;
+    color: #356589;
+    cursor: pointer;
+    ${media.mobileOnly} {
+        right: 0.5rem;
+    }   
+`
+
+const PrevContainer = styled(NextContainer)`
+     left: 1rem;   
+     ${media.mobileOnly} {
+         left: 0.5rem;
+     }
+`
+
+const NoDataContainer = styled.h2`
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+`
+
+const NoData = (props) => {
+    return <NoDataContainer>Data not found for the given ID</NoDataContainer>
+}
+
 const Restuarant = (props) => {
     const [activeMenu, setActiveMenu] = useState(menuTitles[0]);
     const { id } = useParams();
     const { restuarant = {} } = props;
+    const [showCategory, setShowCategory] = useState(false);
 
     useEffect(() => {
         props.dispatch(getRestuarant(id, props.restuarants))
-    }, []);
+    }, [id]);
 
     const { dishes, categories } = useMemo(() => {
         const categories = [], dishes = [];
         if (restuarant.categories)
             for (let index = 0; index < restuarant.categories.length; index++) {
                 const category = restuarant.categories[index], name = category.name;
-                if (name === activeMenu)
-                    categories.push(<MenuItem className={name === activeMenu ? "active" : null} onClick={() => setActiveMenu(name)}>
-                        <AnchorTag href={`#${name.replace(" ", "_")}`} width={`${name.length}ch`}>{name}</AnchorTag>
-                    </MenuItem>)
+                categories.push(<MenuItem className={name === activeMenu ? "active" : null} onClick={() => setActiveMenu(name)}>
+                    <AnchorTag href={`#${name.replace(" ", "_")}`} width={`${name.length}ch`} onClick={() => setShowCategory(false)}>{name}</AnchorTag>
+                </MenuItem>)
                 for (let dishIndex = 0; dishIndex < category["menu-items"].length; dishIndex++) {
                     const menu = category["menu-items"][dishIndex];
-                    dishes.push(<Fragment>
+                    dishes.push(<DishList id={name.replace(" ", "_")} >
                         {
-                            dishIndex === 0 && <CategoryTitle id={name.replace(" ", "_")}>{name}</CategoryTitle>
+                            dishIndex === 0 && <CategoryTitle className={activeMenu === name && 'active'}>{name}</CategoryTitle>
                         }
                         <DishContainer>
                             <DishItem>
@@ -307,40 +392,58 @@ const Restuarant = (props) => {
                                 <DishPrice>{menu.price}Rs/</DishPrice>
                             </DishItem>
                         </DishContainer>
-                    </Fragment>)
+                    </DishList>)
                 }
             }
         return {
             dishes, categories
         }
-    }, [props.restuarant]);
-    console.log(props.restuarant);
+    }, [activeMenu, props.restuarant]);
 
-    return <Container>
-        <Header />
-        <Title>{restuarant.name}</Title>
-        <ContentConatiner>
-            <MenuContainer>
-                {categories}
-            </MenuContainer>
-            <MenuContainer>
-                {dishes}
-            </MenuContainer>
-            <MenuContainer>
+    return props.loading ? <Loading /> : <Container>
+        <Header restuarant={restuarant.name} />
+        {props.error ? <NoData /> : <Fragment>
+            <ContentConatiner>
+                <MenuContainer showBorder={true}>
+                    {dishes}
+                </MenuContainer>
                 <AddressContainer>
-                    <AddressHeader>Call</AddressHeader>
-                    <AddressContent>1234567890</AddressContent>
-                    <AddressHeader>Address</AddressHeader>
-                    <AddressContent>{restuarant.address}</AddressContent>
+                    <Address>
+                        <AddressHeader>Call</AddressHeader>
+                        <AddressContent>1234567890</AddressContent>
+                        <AddressHeader>Address</AddressHeader>
+                        <AddressContent>{restuarant.address}</AddressContent>
+                    </Address>
                 </AddressContainer>
-            </MenuContainer>
-        </ContentConatiner>
+            </ContentConatiner>
+            <FixedContainer onClick={() => setShowCategory(!showCategory)}>
+                <i class="fas fa-utensils"></i>
+                <p>Menu</p>
+            </FixedContainer>
+        </Fragment>}
+        {showCategory && <CategoryContainer>
+            {categories}
+        </CategoryContainer>}
+        {!props.error && <Link to={`/${Number(id) + 1}`}>
+            <NextContainer>
+                <i class="fas fa-chevron-right"></i>
+            </NextContainer>
+        </Link>}
+        {id > 0 && <Link to={`/${Number(id) - 1}`}>
+            <PrevContainer>
+                <i class="fas fa-chevron-left"></i>
+            </PrevContainer>
+        </Link>}
     </Container>
 }
+
+
 
 function mapStateToProps(store) {
     return {
         restuarant: store.restuarant.data,
+        loading: store.restuarant.loading,
+        error: store.restuarant.error,
         restuarants: store.restuarants.data
     }
 }

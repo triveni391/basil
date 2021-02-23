@@ -10,7 +10,7 @@ const Container = styled.div`
     padding: 2rem 4rem;
     display: grid;
     grid-template-columns: 30% 30% 30%;
-    grid-gap: 2rem;
+    grid-column-gap: 2rem;
     width: 100%;
     height: 100%;
     ${media.mobileOnly} {

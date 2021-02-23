@@ -23,7 +23,8 @@ export default (state = {
             return {
                 ...state,
                 loading: false,
-                error: true
+                error: true,
+                data: {}
             }
         default:
             break;
