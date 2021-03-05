@@ -389,7 +389,7 @@ const Restuarant = (props) => {
                                     </Specification>
                                     <DishTitle>{menu.name}</DishTitle>
                                 </DishContent>
-                                <DishPrice>{menu.price}Rs/</DishPrice>
+                                {menu.price && <DishPrice>{menu.price}Rs/</DishPrice>}
                             </DishItem>
                         </DishContainer>
                     </DishList>)
